@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!-- 
+     Based on the d3js Bubble Chart sample here: http://bl.ocks.org/mbostock/4063269
+     Created by Lisa Gaudette as a small project to learn about d3js.
+-->
+<meta charset="utf-8">
+<style>
+
+text {
+  font: 12px;
+}
+body { 
+    font-family: Helvetica, sans-serif;
+    text-align: center;
+}
+
+
+</style>
+<body>
+<h1>Words used most in my Masters and Honours theses, independently and together</h1>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var diameter = 600,
+    format = d3.format(",d"),
+    color = d3.scale.category20c(); 
+
+// This is output of WordCounter.py - just copied so I can just preview the HTML page
+var counts = [{"name": "Masters", "wordCounts": [["words", 139], ["sentiment", 132], ["ordinal", 111], ["reviews", 104], ["features", 96], ["numeric", 95], ["time", 93], ["bow", 89], ["data", 87], ["accuracy", 86], ["analysis", 85], ["classifier", 84], ["dataset", 80], ["binary", 77], ["datasets", 77], ["learning", 75], ["method", 74], ["using", 73], ["bins", 73], ["documents", 73], ["word", 72], ["set", 67], ["performance", 64], ["all", 64], ["number", 64]]}, {"name": "Honours", "wordCounts": [["models", 85], ["data", 74], ["transfer", 53], ["discharge", 41], ["stream", 40], ["training", 38], ["used", 33], ["task", 33], ["inductive", 30], ["mtl", 30], ["weather", 29], ["model", 27], ["streams", 27], ["learning", 27], ["stl", 26], ["knowledge", 26], ["river", 26], ["lawrencetown", 24], ["years", 23], ["annapolis", 22], ["developed", 21], ["year", 21], ["wilmot", 21], ["more", 20], ["set", 19]]}, {"name": "Combined", "wordCounts": [["data", 161], ["words", 139], ["sentiment", 132], ["ordinal", 111], ["reviews", 104], ["time", 104], ["learning", 102], ["features", 96], ["numeric", 95], ["bow", 89], ["used", 89], ["using", 89], ["accuracy", 89], ["models", 87], ["analysis", 86], ["set", 86], ["classifier", 84], ["method", 82], ["dataset", 81], ["all", 78], ["datasets", 78], ["binary", 77], ["performance", 76], ["training", 75], ["bins", 73]]}];
+
+for(var i = 0; i < counts.length; i++)
+{
+    createBubbles(counts[i].name, counts[i].wordCounts);
+}
+
+function createBubbles(name, list) {
+    var root = { name: name, children: []};
+    var bubble = d3.layout.pack()
+        .sort(null)
+        .size([diameter, diameter])
+        .padding(1.5);
+
+    var title = d3.select("body").append("h3").text(name)
+    var svg = d3.select("body").append("svg")
+        .attr("width", diameter)
+        .attr("height", diameter)
+        .attr("class", "bubble");
+        
+    for(var i = 0; i < list.length; i++)
+    {
+        root.children.push({name: list[i][0], value: list[i][1]});
+    }
+    var node = svg.selectAll(".node")
+        .data(bubble.nodes(root))
+        .enter().append("g")
+        .attr("class", "node")
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+    node.append("title")
+        .text(function(d) { return d.name + ": " + format(d.value); });
+
+    node.append("circle")
+        .attr("r", function(d) { return d.r; })
+        .style("fill", function(d) { return d.depth == 0 ? "#EEEEEE" : color(d.name.length); });
+
+    node.append("text")
+        .attr("dy", ".3em")
+        .style("text-anchor", "middle")
+        .text(function(d) { return d.depth == 0 ? "" : d.name.substring(0, d.r / 3); });
+
+    d3.select(self.frameElement).style("height", diameter + "px");
+}
+
+</script>
